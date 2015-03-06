@@ -30,15 +30,17 @@ selenium_node_start() {
     daemon --pidfile=$pidfile --user=$selenium_user $xvfb_bin $xvfb_args > $logfile 2>&1 &
 
     sleep 5  # We should wait until java is started to get pid
-    pid=`pgrep -f "$java_bin $java_args" | tail -n1`
+
+    pids=`pgrep -f "$java_bin $java_args" | tail -n1`
     retval=$?
     if [ $retval -eq 0 ]; then
+        pid=`echo $pids | tail -n1`
         touch $lockfile && echo $pid > $pidfile
         echo_success
-        echo
     else
         echo_failure
     fi
+    echo
 }
 
 selenium_node_stop() {

@@ -1,3 +1,10 @@
+
+%define jar_name selenium-server-standalone
+%define app_dir /usr/lib/selenium
+%define app_user selenium
+%define app_group selenium
+%define log_dir /var/log/selenium
+
 Name: selenium-webdriver
 Version: 2.44.0
 Release: 1
@@ -6,8 +13,8 @@ Group: Applications/System
 BuildArch: noarch
 License: Apache 2.0
 URL: http://seleniumhq.org/
-Packager: Sergey Orlov
-Source0: %{name}-%{version}.java
+Packager: Sergei Orlov
+Source0: %{jar_name}-%{version}.jar
 Source1: selenium-hub
 Source2: selenium-node
 
@@ -22,12 +29,6 @@ The Selenium Server is needed in order to run either Selenium RC style scripts o
 # prevent repacking of jar (not needed)
 %define __jar_repack %{nil}
 
-%define jar_name selenium-server-standalone
-%define app_dir /usr/lib/selenium
-%define app_user selenium
-%define app_group selenium
-%define log_dir /var/log/selenium
-
 %pre
 getent group %{app_group} >/dev/null || groupadd -r %{app_group}
 getent passwd %{app_user} >/dev/null || \
@@ -35,15 +36,12 @@ getent passwd %{app_user} >/dev/null || \
     -c "Selenium Webdriver system user" %{app_user}
 exit 0
 
-%prep
-%setup
-
 %install
 rm -rf %{buildroot}
 
 %{__install} -d -m 0755 %{buildroot}/%{app_dir}
 %{__install} -m 0755 %{SOURCE0} %{buildroot}%{app_dir}
-ln -s %{app_dir}/%{name}-%{version}.java %{buildroot}%{app_dir}/%{jar_name}.jar
+ln -s %{app_dir}/%{jar_name}-%{version}.jar %{buildroot}%{app_dir}/%{jar_name}.jar
 
 %{__install} -d %{buildroot}%{_sysconfdir}/rc.d/init.d
 %{__install} -m 0755 %{SOURCE1} %{buildroot}%{_sysconfdir}/rc.d/init.d/
