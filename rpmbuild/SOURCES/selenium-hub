@@ -1,0 +1,79 @@
+#!/bin/bash
+#
+# selenium-hub
+#
+# chkconfig: - 85 15
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+prog="selenium-hub"
+retval=0
+
+selenium_bin="/usr/lib/selenium/selenium-server-standalone.jar"
+selenium_user="selenium"
+logfile="/var/log/selenium/selenium-hub.log"
+configfile="/etc/selenium-hub.json"
+pidfile="/var/run/selenium-hub.pid"
+lockfile="/var/lock/subsys/$prog"
+
+java_bin="java"
+java_args="-jar $selenium_bin -role hub -hubConfig $configfile"
+
+
+selenium_hub_start() {
+    [ "$EUID" != "0" ] && exit 1
+
+    echo -n "Starting ${prog}..."
+    daemon --pidfile=$pidfile --user=$selenium_user $java_bin $java_args > $logfile 2>&1 &
+
+    sleep 5  # We should wait until java is started to get pid
+    pid=`pgrep -f "$java_bin $java_args" | tail -n1`
+    retval=$?
+    if [ $retval -eq 0 ]; then
+        touch $lockfile && echo $pid > $pidfile
+        echo_success
+        echo
+    else
+        echo_failure
+    fi
+    echo
+}
+
+selenium_hub_stop() {
+    [ "$EUID" != "0" ] && exit 1
+
+    echo -n "Stopping ${prog}..."
+    killproc -p $pidfile $java_bin && rm -f $lockfile && rm -f $pidfile
+    retval=$?
+    echo
+}
+
+selenium_hub_status() {
+    echo -n "Status ${prog}..."
+    status -p $pidfile
+    retval=$?
+}
+
+
+case "$1" in
+    start)
+        selenium_hub_start
+        ;;
+    stop)
+        selenium_hub_stop
+        ;;
+    status)
+        selenium_hub_status
+        ;;
+    restart)
+        selenium_hub_stop
+        selenium_hub_start
+        ;;
+    *)
+        echo "Usage: ${prog} {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
+
+exit $retval

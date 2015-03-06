@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# selenium-node
+#
+# chkconfig: - 85 15
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+prog="selenium-node"
+retval=0
+
+logfile="/var/log/selenium/selenium-node.log"
+configfile="/etc/selenium-node.json"
+pidfile="/var/run/selenium-node.pid"
+lockfile="/var/lock/subsys/$prog"
+
+selenium_user="selenium"
+selenium_bin="/usr/lib/selenium/selenium-server-standalone.jar"
+java_bin="java"
+java_args="-jar $selenium_bin -role node -nodeConfig $configfile"
+xvfb_bin="xvfb-run"
+xvfb_args="-s \"-screen 0 1280x1024x24\" $java_bin $java_args"
+
+
+selenium_node_start() {
+    [ "$EUID" != "0" ] && exit 1
+
+    echo -n "Starting ${prog}..."
+    daemon --pidfile=$pidfile --user=$selenium_user $xvfb_bin $xvfb_args > $logfile 2>&1 &
+
+    sleep 5  # We should wait until java is started to get pid
+    pid=`pgrep -f "$java_bin $java_args" | tail -n1`
+    retval=$?
+    if [ $retval -eq 0 ]; then
+        touch $lockfile && echo $pid > $pidfile
+        echo_success
+        echo
+    else
+        echo_failure
+    fi
+}
+
+selenium_node_stop() {
+    [ "$EUID" != "0" ] && exit 1
+
+    echo -n "Stopping ${prog}..."
+    killproc -p $pidfile $xvfb_bin && rm -f $lockfile && rm -f $pidfile
+    retval=$?
+    echo
+}
+
+selenium_node_status() {
+    echo -n "Status ${prog}..."
+    status -p $pidfile
+    retval=$?
+}
+
+
+case "$1" in
+    start)
+        selenium_node_start
+        ;;
+    stop)
+        selenium_node_stop
+        ;;
+    status)
+        selenium_node_status
+        ;;
+    restart)
+        selenium_node_stop
+        selenium_node_start
+        ;;
+    *)
+        echo "Usage: ${prog} {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
+
+exit $retval
