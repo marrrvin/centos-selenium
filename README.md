@@ -1,35 +1,41 @@
 
 # centos-selenium
 
-Selenium Webdriver rpm spec and init scripts
+Selenium Webdriver rpm spec and init scripts for CentOS Linux.
 
-Selenium [download page](http://selenium-release.storage.googleapis.com/index.html)
+Requires preinstalled Oracle Java (jdk RPM package).
 
-## Install required tools
+Tested on CentOS 6.5.
+
+You can get latest Selenium Webdriver version from [download page](http://selenium-release.storage.googleapis.com/index.html).
+
+## How to build
+
+### Install required tools
 
 ```bash
 sudo yum install -y rpm-build rpmdevtools
 ```
 
-## Create required directory structure
+### Create required directory structure
 
 ```bash
 rpmdev-setuptree
 ```
 
-## Copy repo stuff to rpmbuild directory tree
+### Copy repo stuff to rpmbuild directory tree
 
 ```bash
-cp -r path/repo/rpmbuild/* ~/rpmbuild
+cp -r /your/path/repo/rpmbuild/* ~/rpmbuild
 ```
 
-# Prepare source archive
+### Prepare source archive
 
 ```bash
 wget http://selenium-release.storage.googleapis.com/2.44/selenium-server-standalone-2.44.0.jar -O ~/rpmbuild/SOURCES/selenium-server-standalone-2.44.0.jar
 ```
 
-## Build the RPM
+### Build the RPM
 
 ```bash
 rpmbuild -bb ~/rpmbuild/SPECS/selenium-webdriver.spec
