@@ -18,7 +18,6 @@ Source0: %{jar_name}-%{version}.jar
 Source1: selenium-hub
 Source2: selenium-node
 
-Requires: jdk
 Requires: xorg-x11-server-Xvfb
 
 Requires(pre): shadow-utils

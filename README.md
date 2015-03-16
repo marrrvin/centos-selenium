@@ -3,7 +3,7 @@
 
 Selenium Webdriver rpm spec and init scripts for CentOS Linux.
 
-Requires preinstalled Oracle Java (jdk RPM package).
+Requires preinstalled java runtime.
 
 Tested on CentOS 6.5.
 
